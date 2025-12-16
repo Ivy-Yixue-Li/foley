@@ -15,16 +15,16 @@
             overflow: hidden;
         }
 
-        /* --- UPDATED TITLE STYLES --- */
+        /* --- TITLE STYLES --- */
         #playButton {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 100%; /* Ensure it has room to center */
+            width: 100%; 
             padding: 0;
             
-            /* Responsive Font Size: 12% of screen width */
+            /* Responsive Font Size */
             font-size: 12vw; 
             
             background-color: transparent;
@@ -33,12 +33,10 @@
             cursor: pointer;
             z-index: 20;
             font-family: "Roboto Mono", monospace;
-            font-weight: 500; /* Slightly bolder for impact */
-            line-height: 1.1; /* Tighter line height */
+            font-weight: 500; 
+            line-height: 1.1; 
             text-align: center;
             transition: opacity 0.3s;
-            
-            /* Optional: Text Shadow for better contrast if video plays behind */
             text-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
  
@@ -50,7 +48,7 @@
         /* The Play Icon inside the button */
         .play-icon {
             display: block;
-            font-size: 0.4em; /* Relative to the huge text size */
+            font-size: 0.4em; 
             margin-top: 10px;
             opacity: 0.8;
         }
@@ -260,25 +258,20 @@
     
     <script>
         var player;
+        var shouldRandomize = true; // Flag: Should we jump to random time?
 
         var videoList = [
             'bJcuifEu0Ro', // Chengdu
             'EB2_-VEf8QY', // London
             'HRg1gJi6yqc', // Sydney
             '15dL2GL78SM', // Seoul
-            'SnP3qTb-bnk', // HK
             'a1LwHVeRr3w', // Port Louis
             'CHhT9_GsZ6U', // Chongqing
             'aEzcC6U8VKs', // Singapore
             'N-K2qU9OZBM', // Helsinki
             'aAiQ9JTGrEM', // Times Square
-            'xy4FxOQYh8g', // Tokyo Shibuya
-            'eJ7ZkQ5TC08', // Mumbai
-            '2N6_Z3-a25M', // Cairo
-            'UDH0G3p9v_c', // Istanbul
-            'B9_0i8Q_KVI', // Bangkok
-            'J76r6XhH6f0', // Hanoi
-            '6dF4i5GzTjU'  // Mexico City
+            'MkdsvjGZv7U', // Tokyo
+            'xjR0q-yUsYY'  // Mexico City
         ];  
         
         function getRandomInt(min, max) {
@@ -290,6 +283,7 @@
             var videoId = videoList[randomIndex];
 
             console.log("Loading Video ID:", videoId);
+            shouldRandomize = true; // Reset flag so next video also seeks random
 
             if (player) {
                 player.loadVideoById(videoId);
@@ -308,7 +302,8 @@
                     },
                     events: {
                         'onReady': onPlayerReady,
-                        'onError': onPlayerError
+                        'onError': onPlayerError,
+                        'onStateChange': onPlayerStateChange // ADDED LISTENER
                     }
                 });
             }
@@ -318,6 +313,24 @@
 
         function onPlayerReady(event) {
             event.target.playVideo();
+        }
+
+        // --- NEW FUNCTION: JUMP TO RANDOM TIME ---
+        function onPlayerStateChange(event) {
+            // YT.PlayerState.PLAYING is 1
+            if (event.data === 1 && shouldRandomize) {
+                var duration = player.getDuration();
+                
+                // If video is long enough (>60s), pick a random spot
+                // We leave a 60s buffer at the end so it doesn't finish immediately
+                if (duration > 60) {
+                    var randomTime = Math.floor(Math.random() * (duration - 60));
+                    console.log("Video Duration: " + duration + ". Jumping to: " + randomTime);
+                    player.seekTo(randomTime);
+                }
+                
+                shouldRandomize = false; // Turn off flag so we don't keep jumping in loop
+            }
         }
 
         function onPlayerError(event) {
