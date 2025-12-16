@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>拟画1</title>
+    <title>Visual Foley</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
@@ -12,33 +12,49 @@
             background-color: black;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Prevent scrolling on the main page */
+            overflow: hidden;
         }
 
+        /* --- UPDATED TITLE STYLES --- */
         #playButton {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 1vw;
-            font-size: 20vw;
-            background-color: black;
+            width: 100%; /* Ensure it has room to center */
+            padding: 0;
+            
+            /* Responsive Font Size: 12% of screen width */
+            font-size: 12vw; 
+            
+            background-color: transparent;
             color: white;
             border: none;
-            border-radius: 10px;
             cursor: pointer;
-            z-index: 20; /* High z-index to be on top of video */
+            z-index: 20;
             font-family: "Roboto Mono", monospace;
-            font-weight: 400;
-            line-height: 100%;
+            font-weight: 500; /* Slightly bolder for impact */
+            line-height: 1.1; /* Tighter line height */
+            text-align: center;
+            transition: opacity 0.3s;
+            
+            /* Optional: Text Shadow for better contrast if video plays behind */
+            text-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
  
         #playButton:hover {
-            opacity: 0.8;
+            opacity: 0.7;
             font-style: italic;
         }
 
-        /* Container for the video - controls positioning */
+        /* The Play Icon inside the button */
+        .play-icon {
+            display: block;
+            font-size: 0.4em; /* Relative to the huge text size */
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
         .video-container {
             position: fixed;
             top: 0;
@@ -48,39 +64,36 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1; /* Lowest level */
+            z-index: 1;
             background-color: black;
         }
     
-        /* The actual iframe */
         .video-container iframe {
             width: 100vw;
             height: 100vh;
             border: 0; 
-            pointer-events: none; /* Prevents clicking on the YouTube video itself */
+            pointer-events: none;
         }
 
-        /* Gradient at the bottom */
         .gradient-container {
-            display: none; /* Initially hidden */
+            display: none;
             position: fixed;
             left: 0;
             bottom: 0;
             width: 100%;
             height: 20%;
             background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-            z-index: 10; /* Above video */
+            z-index: 10;
             justify-content: center;
             align-items: center;
         }
 
-        /* UI Controls */
         .control {
             width: auto;
             height: auto;
             background-color: white;
             margin: 0 40px;
-            font-size: 40px; /* You might want to use vw here for responsiveness */
+            font-size: 40px;
             padding: 10px 40px;
             color: black;
             border: 3px solid white;
@@ -107,7 +120,6 @@
             flex-grow: 1;
         }
 
-        /* Full-screen Overlay */
         #textSection {
             position: fixed;
             top: 0;
@@ -116,28 +128,36 @@
             height: 100vh;
             background-color: rgba(0, 0, 0, 0.95);
             color: white;
-            z-index: 100; /* Highest priority */
-            display: none; /* Initially hidden */
+            z-index: 100;
+            display: none;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
+            justify-content: flex-start; 
+            align-items: flex-start;
+            text-align: left;
+            padding: 80px 5vw 40px 5vw;
             box-sizing: border-box;
             overflow-y: auto;
         }
 
         #textSection p {
             font-family: sans-serif;
-            font-size: 20px;
+            font-size: 18px;
             line-height: 1.6;
             margin-bottom: 20px;
-            max-width: 800px; /* Limits text width for better readability */
+            max-width: 800px;
+            text-align: left;
         }
 
-        /* Close button */
+        .divider {
+            width: 100%;
+            max-width: 800px;
+            border: 0;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            margin: 40px 0;
+        }
+
         .close-btn {
-            position: absolute;
+            position: fixed; 
             top: 20px;
             right: 20px;
             background-color: white;
@@ -148,6 +168,7 @@
             font-size: 20px;
             font-family: "Roboto Mono", monospace;
             cursor: pointer;
+            z-index: 101;
         }
 
         .close-btn:hover {
@@ -158,7 +179,10 @@
 </head>
 <body>
 
-    <button id="playButton">拟画Play</button>
+    <button id="playButton">
+        Visual Foley
+        <span class="play-icon">▶</span>
+    </button>
 
     <div id="video-wrapper" class="video-container" style="display:none;">
         <div id="player"></div>
@@ -174,156 +198,198 @@
 
     <div id="textSection">
         <button class="close-btn">Close</button>
-        <p>我们的大脑似乎能轻易构建起声音和画面之间的联系。电影制作中的拟声音效就是最好的佐证：我们善于将眼前的画面和那些与之同时发生的、似是而非的声音建立起对应关系。这种能力使我们能够将来自不同感官的信息整合在一起，形成完整的感知体验。<br/><br/>
-        如果说田野录音&同期声这种在场和具身的行为强化了现场声画之间的统一性，那么在裂声症时代，在声音失去它的原始环境的时候，我们常常需要对声音和画面之间的关系进行一种（或被动或主动的）主观脑补。<br/>
-            当技术进步使得声音的后期制作更加容易，当音轨可以轻易地在音视频制作软件时间轴上被编辑和拖拽，是否声音的矫饰已经成为习惯，而原始聆听已经成为奢望？<br/>
-            当我们带着耳机走在路上，耳机内外的声音混合在一起，形成了一种新的声音景观，哪个部分才是真实的声音事件和声音现场？<br/>
-            在观看网络视频时，有时会因为帧率的问题出现音画不同步的现象。 带着小小的违和感，我们的大脑开始地填补那一点点不同步的时间差，直到声画之间的差异被我们忽视和消弭。<br/>
-            在以上种种情况下，我们的大脑热衷于根据自己的经验和想象来构建声音和画面之间的关系，而这种关系的真实性和准确性似乎有待商榷。<br/>
-            我并非在此鼓吹一种对“真实”或“准确”的追求。<br/><br/>
-            对于有幸能同时听见和看见世界的人来说，我们所要面对的是两种截然不同的声画关系：<br/>
-            聆听现场时，声音被眼前之所见具像化，一切都是精确的、必然的、一一对应的。<br/>
-            聆听录音时，声音包含了大量的回忆、想象、猜测，模糊的画面在脑中形成。<br/>
-            正如电影中的拟声音效对固定的画面佐以似是而非的声音，假使我们对固定的声音佐以一种似是而非的画面 （此处暂且将这种行为称为拟画），我们是否能骗过我们的大脑，给声音赋予具体的视觉符号，强行而不动声色地构建出一种虚构的声画关系？<br/><br/>
-            在这个项目中，我选取了三段录制于不同地点的声音，它们分别来自：<br/>
-            纽约时代广场，<br/>
-            香港士美菲路街市及熟食中心，<br/>
-            和重庆家庭牌桌。<br/>
-            我抓取了网络上世界各地处于城市中心、食品市场、和家庭场景的视频，并对应在这三段音频上。每刷新一次页面都会抓取新的视频来搭配这些声音。<br/>
-            或许在全球化的背景下，这些人们赖以生存的场景越来越趋同，而我们虚构的声画关系趋近于合理，甚至并不引起观者的疑心。<br/>
-            而当声画相悖到什么程度，它们之间的虚构关系会被识破？是否那些被识破的时刻，那些声音中的语言、场景、疏密程度同画面明显不同的时刻，正向我们昭示了某地的独特声景？<br/>
-            当同一段声音被赋予不同的画面，是否那些貌似合理的声画会不被察觉地掠过，仿佛那声音正温顺地为视觉而服务；而相左的声画则会突兀地从背景跳跃到前景，显得怪异、混乱、失去逻辑，使我们的听觉短暂地抢夺过视觉主导的霸权？</p>
+        
+        <p>Our brains seem capable of effortlessly constructing connections between sound and image. The art of Foley in filmmaking is the best evidence of this: we are adept at establishing a correspondence between the scene before our eyes and simultaneous—yet merely plausible—sounds. This ability allows us to integrate information from different senses into a complete perceptual experience.</p>
+
+        <p>If field recording and synchronous sound—acts of presence and embodiment—reinforce the unity of the on-site audio-visual experience, then in the era of "schizophonia," when sound is severed from its original environment, we are often compelled to perform a kind of subjective mental reconstruction (whether passive or active) of the relationship between what we hear and what we see.</p>
+
+        <p>As technological progress makes audio post-production increasingly easy, and as audio tracks can be effortlessly dragged and edited on a timeline, has sonic artifice become a habit, while "authentic listening" has become a luxury?</p>
+
+        <p>When we walk down the street wearing headphones, the sounds inside and outside mix together to form a new soundscape. Which part constitutes the real sound event, the true sonic site?</p>
+
+        <p>When watching online videos, frame rate issues sometimes cause audio-visual desynchronization. With a slight sense of dissonance, our brains begin to fill that tiny temporal gap until the discrepancy between sound and image is ignored and eliminated.</p>
+
+        <p>In all the above cases, our brains are eager to construct relationships between sound and image based on experience and imagination—yet the truth and accuracy of these relationships remain open to question.</p>
+
+        <p>I am not here to advocate for a pursuit of "truth" or "accuracy."</p>
+
+        <p>For those fortunate enough to both hear and see the world, we face two distinct audio-visual relationships: When listening on-site, sound is concretized by what is seen; everything is precise, inevitable, and one-to-one. When listening to a recording, sound contains vast amounts of memory, imagination, and conjecture, forming blurry images in the mind.</p>
+
+        <p>Just as Foley in film supplements a fixed image with specious sound, if we supplement fixed sound with a specious image (let us tentatively call this act "Visual Foley" or "Imitative Imagery"), can we deceive our brains? Can we assign concrete visual symbols to sound, forcibly yet unobtrusively constructing a fictional audio-visual relationship?</p>
+
+        <p>In this project, I recorded a soundscape of New York’s Times Square and scraped YouTube for walking tour videos from city centers around the world to correspond with this audio. Every time the page is refreshed, a new video is grabbed to pair with these sounds.</p>
+
+        <p>Perhaps, in the context of globalization, these scenes upon which people rely for survival are becoming increasingly convergent. Consequently, our fictional audio-visual relationship approaches plausibility, failing to even arouse the viewer's suspicion.</p>
+
+        <p>But at what degree of contradiction is this fictional relationship exposed? Do those moments of exposure—where the language, scenery, or density of the sound differs distinctively from the image—reveal to us the unique soundscape of a specific place?</p>
+
+        <p>When the same segment of audio is endowed with different images, do the seemingly reasonable pairings slide by unnoticed, as if sound is tamely subservient to vision? Meanwhile, do the conflicting pairings leap abruptly from background to foreground—appearing bizarre, chaotic, and illogical—allowing our hearing to briefly wrest hegemony away from the dominance of vision?</p>
+
+        <hr class="divider">
+
+        <p>我们的大脑似乎能轻易构建起声音和画面之间的联系。电影制作中的拟声音效就是最好的佐证：我们善于将眼前的画面和那些与之同时发生的、似是而非的声音建立起对应关系。这种能力使我们能够将来自不同感官的信息整合在一起，形成完整的感知体验。</p>
+
+        <p>如果说田野录音&同期声这种在场和具身的行为强化了现场声画之间的统一性，那么在裂声症时代，在声音失去它的原始环境的时候，我们常常需要对声音和画面之间的关系进行一种（或被动或主动的）主观脑补。</p>
+
+        <p>当技术进步使得声音的后期制作更加容易，当音轨可以轻易地在音视频制作软件时间轴上被编辑和拖拽，是否声音的矫饰已经成为习惯，而原始聆听已经成为奢望？</p>
+
+        <p>当我们带着耳机走在路上，耳机内外的声音混合在一起，形成了一种新的声音景观，哪个部分才是真实的声音事件和声音现场？</p>
+
+        <p>在观看网络视频时，有时会因为帧率的问题出现音画不同步的现象。 带着小小的违和感，我们的大脑开始地填补那一点点不同步的时间差，直到声画之间的差异被我们忽视和消弭。</p>
+
+        <p>在以上种种情况下，我们的大脑热衷于根据自己的经验和想象来构建声音和画面之间的关系，而这种关系的真实性和准确性似乎有待商榷。</p>
+
+        <p>我并非在此鼓吹一种对“真实”或“准确”的追求。</p>
+
+        <p>对于有幸能同时听见和看见世界的人来说，我们所要面对的是两种截然不同的声画关系：<br/>
+        聆听现场时，声音被眼前之所见具像化，一切都是精确的、必然的、一一对应的。<br/>
+        聆听录音时，声音包含了大量的回忆、想象、猜测，模糊的画面在脑中形成。</p>
+
+        <p>正如电影中的拟声音效对固定的画面佐以似是而非的声音，假使我们对固定的声音佐以一种似是而非的画面 （此处暂且将这种行为称为拟画），我们是否能骗过我们的大脑，给声音赋予具体的视觉符号，强行而不动声色地构建出一种虚构的声画关系？</p>
+
+        <p>在这个项目中，我录制了一段纽约时代广场的声景，并抓取了 youtube 上世界各地城市中心漫步的视频，对应在这段音频上。每刷新一次页面都会抓取新的视频来搭配这些声音。</p>
+
+        <p>或许在全球化的背景下，这些人们赖以生存的场景越来越趋同，而我们虚构的声画关系趋近于合理，甚至并不引起观者的疑心。</p>
+
+        <p>而当声画相悖到什么程度，它们之间的虚构关系会被识破？是否那些被识破的时刻，那些声音中的语言、场景、疏密程度同画面明显不同的时刻，正向我们昭示了某地的独特声景？</p>
+
+        <p>当同一段声音被赋予不同的画面，是否那些貌似合理的声画会不被察觉地掠过，仿佛那声音正温顺地为视觉而服务；而相左的声画则会突兀地从背景跳跃到前景，显得怪异、混乱、失去逻辑，使我们的听觉短暂地抢夺过视觉主导的霸权？</p>
+
+        <br/><br/>
     </div>
     
     <script>
-    var player;
+        var player;
 
-    var preSelectedVideos = [
-        'bJcuifEu0Ro', // Chengdu
-        'EB2_-VEf8QY', // London
-        'HRg1gJi6yqc', // Sydney
-        '15dL2GL78SM', // Seoul
-        'SnP3qTb-bnk', // HK
-        'a1LwHVeRr3w', // Port louis
-        'CHhT9_GsZ6U', // Chongqing
-        'aEzcC6U8VKs', // Singapore
-        'N-K2qU9OZBM', // Helsinki
-        'aAiQ9JTGrEM'  // Times Square
-    ];  
-    
-    function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+        var videoList = [
+            'bJcuifEu0Ro', // Chengdu
+            'EB2_-VEf8QY', // London
+            'HRg1gJi6yqc', // Sydney
+            '15dL2GL78SM', // Seoul
+            'SnP3qTb-bnk', // HK
+            'a1LwHVeRr3w', // Port Louis
+            'CHhT9_GsZ6U', // Chongqing
+            'aEzcC6U8VKs', // Singapore
+            'N-K2qU9OZBM', // Helsinki
+            'aAiQ9JTGrEM', // Times Square
+            'xy4FxOQYh8g', // Tokyo Shibuya
+            'eJ7ZkQ5TC08', // Mumbai
+            '2N6_Z3-a25M', // Cairo
+            'UDH0G3p9v_c', // Istanbul
+            'B9_0i8Q_KVI', // Bangkok
+            'J76r6XhH6f0', // Hanoi
+            '6dF4i5GzTjU'  // Mexico City
+        ];  
+        
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
 
-    function loadRandomVideo() {
-        var randomIndex = getRandomInt(0, preSelectedVideos.length - 1);
-        var videoId = preSelectedVideos[randomIndex];
+        function loadRandomVideo() {
+            var randomIndex = getRandomInt(0, videoList.length - 1);
+            var videoId = videoList[randomIndex];
 
-        console.log("Attempting to load:", videoId); // Debugging
+            console.log("Loading Video ID:", videoId);
 
-        if (player) {
-            player.loadVideoById(videoId);
-        } else {
-            // Check visibility before init
+            if (player) {
+                player.loadVideoById(videoId);
+            } else {
+                player = new YT.Player('player', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: videoId,
+                    playerVars: {
+                        'autoplay': 1,
+                        'mute': 1,
+                        'controls': 0,
+                        'loop': 1,
+                        'playlist': videoId,
+                        'origin': window.location.origin
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onError': onPlayerError
+                    }
+                });
+            }
+
+            document.querySelector('.gradient-container').style.display = 'flex';
+        }
+
+        function onPlayerReady(event) {
+            event.target.playVideo();
+        }
+
+        function onPlayerError(event) {
+            console.log("Video Unavailable (Error " + event.data + "). Skipping...");
+            setTimeout(function() {
+                loadRandomVideo(); 
+            }, 500);
+        }
+
+        document.getElementById('playButton').addEventListener('click', function() {
+            this.style.display = 'none'; 
             document.getElementById('video-wrapper').style.display = 'flex';
-            
-            player = new YT.Player('player', {
-                height: '100%',
-                width: '100%',
-                videoId: videoId,
-                playerVars: {
-                    'autoplay': 1,
-                    'mute': 1,
-                    'controls': 0,
-                    'loop': 1,
-                    'playlist': videoId
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onError': onPlayerError // <--- ADDED THIS LINE
-                }
-            });
-        }
 
-        document.querySelector('.gradient-container').style.display = 'flex';
-    }
-
-    function onPlayerReady(event) {
-        event.target.playVideo();
-    }
-
-    // --- NEW ERROR HANDLING FUNCTION ---
-    function onPlayerError(event) {
-        console.log("YouTube Error:", event.data);
-        // Errors 100, 101, 150, 153 mean video doesn't exist or embedding is forbidden
-        if (event.data === 100 || event.data === 101 || event.data === 150 || event.data === 153) {
-            console.log("Video restricted. Skipping to next video...");
-            loadRandomVideo(); // Try a different video immediately
-        }
-    }
-
-    document.getElementById('playButton').addEventListener('click', function() {
-        this.style.display = 'none'; 
-        document.getElementById('video-wrapper').style.display = 'flex';
-
-        if (!player) {
-            loadRandomVideo(); 
-        } else {
-            player.playVideo();
-        }
-
-        var audio = document.getElementById('myAudio');
-        if (audio.paused) {
-            audio.play().catch(e => console.error("Error playing audio: ", e));
-        }
-    });
-
-    document.getElementById('playPauseButton').addEventListener('click', function() {
-        var button = this;
-        if (player && typeof player.getPlayerState === 'function') {
-            var playerState = player.getPlayerState();
-            var audio = document.getElementById('myAudio');
-
-            if (playerState === 1) { 
-                player.pauseVideo();
-                audio.pause();
-                button.textContent = "Play";
-            } else { 
+            if (!player) {
+                loadRandomVideo(); 
+            } else {
                 player.playVideo();
-                audio.play();
-                button.textContent = "Pause";
+            }
+
+            var audio = document.getElementById('myAudio');
+            if (audio.paused) {
+                audio.play().catch(e => console.error("Error playing audio: ", e));
+            }
+        });
+
+        document.getElementById('playPauseButton').addEventListener('click', function() {
+            var button = this;
+            if (player && typeof player.getPlayerState === 'function') {
+                var playerState = player.getPlayerState();
+                var audio = document.getElementById('myAudio');
+
+                if (playerState === 1) { 
+                    player.pauseVideo();
+                    audio.pause();
+                    button.textContent = "Play";
+                } else { 
+                    player.playVideo();
+                    audio.play();
+                    button.textContent = "Pause";
+                }
+            }
+        });
+
+        function setRandomAudioTime(audioElement) {
+            if (audioElement.duration > 0) {
+                var randomTime = Math.random() * audioElement.duration;
+                audioElement.currentTime = randomTime;
+                audioElement.play();
             }
         }
-    });
 
-    function setRandomAudioTime(audioElement) {
-        if (audioElement.duration > 0) {
-            var randomTime = Math.random() * audioElement.duration;
-            audioElement.currentTime = randomTime;
-            audioElement.play();
-        }
-    }
+        document.getElementById('refreshVideoButton').addEventListener('click', function() {
+            loadRandomVideo(); 
 
-    document.getElementById('refreshVideoButton').addEventListener('click', function() {
-        loadRandomVideo(); 
-
-        var audio = document.getElementById('myAudio');
-        if (audio.readyState >= 1) {
-            setRandomAudioTime(audio);
-        } else {
-            audio.addEventListener('loadedmetadata', function() {
+            var audio = document.getElementById('myAudio');
+            if (audio.readyState >= 1) {
                 setRandomAudioTime(audio);
-            }, { once: true });
-        }
-    });
+            } else {
+                audio.addEventListener('loadedmetadata', function() {
+                    setRandomAudioTime(audio);
+                }, { once: true });
+            }
+        });
 
-    document.getElementById('displayText').addEventListener('click', function() {
-        document.getElementById('textSection').style.display = 'flex';
-    });
+        document.getElementById('displayText').addEventListener('click', function() {
+            document.getElementById('textSection').style.display = 'flex';
+        });
 
-    document.querySelector('.close-btn').addEventListener('click', function() {
-        document.getElementById('textSection').style.display = 'none';
-    });
-</script>
+        document.querySelector('.close-btn').addEventListener('click', function() {
+            document.getElementById('textSection').style.display = 'none';
+        });
+
+    </script>
 </body>
 </html>
